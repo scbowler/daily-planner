@@ -1,0 +1,34 @@
+{
+  "name": "daily-planner",
+  "version": "1.0.0",
+  "description": "A daily planner",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npm-run-all --silent --parallel dev:*",
+    "dev:client": "npm start --prefix client",
+    "dev:server": "nodemon index.js",
+    "db:import": "source .env; psql $DATABASE_URL < database/dump.sql",
+    "db:export": "source .env; pg_dump -c -O $DATABASE_URL > database/dump.sql"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scbowler/daily-planner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scbowler/daily-planner/issues"
+  },
+  "homepage": "https://github.com/scbowler/daily-planner#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "pg": "^8.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "npm-run-all": "^4.1.5"
+  }
+}
