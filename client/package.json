@@ -7,6 +7,11 @@
     "start": "node dev_server.js",
     "build": "webpack --config webpack.prod.js --progress"
   },
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:3001"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

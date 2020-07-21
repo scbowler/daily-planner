@@ -1,7 +1,10 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import App from './components/app';
+
 ReactDOM.render(
-  <h1>Daily Planner</h1>,
+  <App />,
   document.getElementById('root')
 );
