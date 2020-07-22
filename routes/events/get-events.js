@@ -1,15 +1,24 @@
 const db = require('../../database');
+const { days } = require('../../lib/date');
 
 module.exports = async (req, res) => {
-  const { rows } = await db.query('select * from events');
+  const { day } = req.params;
+  const error = 'Bad Request';
 
-  const events = rows.map(event => {
-    const d = new Date(event.date);
+  try {
+    if(isNaN(day) || day < 0 || day > 6) {
+      error = 'Invalid day provided';
+      throw new Error(error);
+    }
+    const { rows } = await db.query('select * from events where day = $1', [day]);
 
-    event.date = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const events = rows.map(event => {
+      event.dayText = days[event.day];
+      return event;
+    });
 
-    return event;
-  });
-
-  res.send([...events]);
+    res.send([...events]);
+  } catch(err) {
+    res.status(400).send({ error });
+  }
 }
