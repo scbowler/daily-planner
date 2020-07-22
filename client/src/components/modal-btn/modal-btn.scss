@@ -1,0 +1,17 @@
+.modal-btn-container {
+  background-color: rgba(0, 0, 0, .7);
+  display: flex;
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+
+  .modal-btn-content {
+    background-color: white;
+    border-radius: 4px;
+    margin: auto;
+    padding: 1.5rem;
+    width: 60%
+  }
+}
