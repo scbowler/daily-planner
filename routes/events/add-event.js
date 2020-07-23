@@ -1,4 +1,5 @@
 const db = require('../../database');
+const { validateFields } = require('../../lib/api');
 
 module.exports = async (req, res) => {
   let errors = [];
@@ -9,15 +10,7 @@ module.exports = async (req, res) => {
     day = parseInt(day);
     time = parseInt(time);
 
-    if(isNaN(day) || day < 0 || day > 6) {
-      errors.push('Invalid day given');
-    }
-    if(!description) {
-      errors.push('No description given');
-    }
-    if(isNaN(time) || time < 0 || time >= 2400) {
-      errors.push('Invalid time given');
-    }
+    errors = validateFields(day, description, time);
 
     if(errors.length) {
       throw new Error('Invalid data given');
@@ -35,7 +28,6 @@ module.exports = async (req, res) => {
 
     res.send(event);
   } catch(error) {
-    console.log('Error:', error);
     let msg = 'Bad Request';
 
     if(errors.length) {
