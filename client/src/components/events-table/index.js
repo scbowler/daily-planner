@@ -1,4 +1,6 @@
 import React, { Fragment } from 'react';
+import EventForm from '../event-form';
+import ModalBtn from '../modal-btn';
 import './events-table.scss';
 
 export default (props) => {
@@ -8,6 +10,7 @@ export default (props) => {
         <tr>
           <th>Time</th>
           <th>Description</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -17,14 +20,14 @@ export default (props) => {
   );
 }
 
-function BuildRows({events = null, day, minRows = 8}) {
+function BuildRows({events = null, day, minRows = 8, update}) {
   let blankCount = minRows - 1;
 
   if(!day) {
     return (
       <>
         <tr>
-          <td className="text-center" colSpan="2">Select a day to view events</td>
+          <td className="text-center" colSpan="3">Select a day to view events</td>
         </tr>
         <BlankRows count={blankCount}/>
       </>
@@ -35,7 +38,7 @@ function BuildRows({events = null, day, minRows = 8}) {
     return (
       <>
         <tr>
-          <td className="text-center" colSpan="2">No events scheduled for {day}</td>
+          <td className="text-center" colSpan="3">No events scheduled for {day}</td>
         </tr>
         <BlankRows count={blankCount} />
       </>
@@ -52,6 +55,22 @@ function BuildRows({events = null, day, minRows = 8}) {
             <tr key={eventId}>
               <td>{time}</td>
               <td>{description}</td>
+              <td>
+                <ModalBtn
+                  btnClass="btn btn-light-blue"
+                  btnText="Update Event"
+                  Content={EventForm}
+                  contentProps={{
+                    day,
+                    description,
+                    eventId,
+                    submit: update,
+                    submitTxt: 'Update Event',
+                    time,
+                    title: "Update Event"
+                  }}
+                />
+              </td>
             </tr>
           );
         })
@@ -66,6 +85,7 @@ function BlankRows({count = 0}) {
   while(count--) {
     rows.push(
       <tr key={`blank-${count}`}>
+        <td></td>
         <td></td>
         <td></td>
       </tr>

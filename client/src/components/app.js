@@ -18,11 +18,14 @@ class App extends React.Component {
 
     this.addEvent = this.addEvent.bind(this);
     this.buildDays = this.buildDays.bind(this);
+    this.updateEvent = this.updateEvent.bind(this);
   }
 
-  async addEvent(event) {
+  async addEvent(event, cb) {
     try {
       const { data: newEvent } = await axios.post('/api/events', event);
+
+      cb();
 
       const dayEventAdded = days[newEvent.day];
       const { activeDay } = this.state;
@@ -46,6 +49,32 @@ class App extends React.Component {
       this.setState({ events, error: null });
     } catch(error) {
       this.setState({ error: 'Error Loading Events' });
+    }
+  }
+
+  async updateEvent(event, cb) {
+    try {
+      const { eventId, ...newEvent } = event;
+      const { data: updatedEvent } = await axios.put(`/api/events/${eventId}`, newEvent);
+
+      cb();
+
+      const dayEventAdded = days[updatedEvent.day];
+      const { activeDay, events } = this.state;
+
+      if (dayEventAdded === activeDay) {
+        this.getEvents(activeDay);
+      } else {
+        const eventIndex = events.findIndex(({eventId}) => eventId === updatedEvent.eventId);
+        const updatedEvents = [...events];
+
+        updatedEvents.splice(eventIndex, 1);
+        this.setState({
+          events: updatedEvents
+        });
+      }
+    } catch(error) {
+      console.log('Update Error:', error);
     }
   }
 
@@ -85,11 +114,12 @@ class App extends React.Component {
             contentProps={{ 
               day: activeDay,
               submit: this.addEvent,
+              submitTxt: 'Add Event',
               title:"Add Event" 
             }}
           />
         </div>
-        <EventsTable day={activeDay} events={events} />
+        <EventsTable day={activeDay} events={events} update={this.updateEvent} />
       </div>
     );
   }
