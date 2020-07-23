@@ -22,6 +22,22 @@ class App extends React.Component {
     this.updateEvent = this.updateEvent.bind(this);
   }
 
+  componentDidMount() {
+    const { day = null } = this.props.match.params;
+
+    if(day) {
+      this.getEvents(day);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { day = null } = this.props.match.params;
+    
+    if(day && day !== prevProps.match.params.day) {
+      this.getEvents(day);
+    }
+  }
+
   async addEvent(event, cb) {
     try {
       const { data: newEvent } = await axios.post('/api/events', event);
@@ -29,18 +45,37 @@ class App extends React.Component {
       cb();
 
       const dayEventAdded = days[newEvent.day];
-      const { activeDay } = this.state;
+      const { day } = this.props.match.params;
 
-      if(dayEventAdded === activeDay) {
-        this.getEvents(activeDay);
+      if(dayEventAdded === day) {
+        this.getEvents(day);
       }
     } catch(error) {
       console.log('Add error:', error);
     }
   }
 
-  async deleteEvent(eventId) {
-    console.log('Delete Event ID:', eventId);
+  async deleteEvent(id, cb) {
+    try {
+      let { data: { deletedId } } = await axios.delete(`/api/events/${id}`);
+      deletedId = parseInt(deletedId);
+
+      cb();
+
+      const { events } = this.state;
+      const eventIndex = events.findIndex(({ eventId }) => eventId === deletedId);
+      
+      if (eventIndex > -1) {
+        const updatedEvents = [...events];
+
+        updatedEvents.splice(eventIndex, 1);
+        this.setState({
+          events: updatedEvents
+        });
+      }
+    } catch(error) {
+      console.log('Delete Error:', error);
+    }
   }
 
   async getEvents(day) {
@@ -65,10 +100,11 @@ class App extends React.Component {
       cb();
 
       const dayEventAdded = days[updatedEvent.day];
-      const { activeDay, events } = this.state;
+      const { day } = this.props.match.params;
+      const { events } = this.state;
 
-      if (dayEventAdded === activeDay) {
-        this.getEvents(activeDay);
+      if (dayEventAdded === day) {
+        this.getEvents(day);
       } else {
         const eventIndex = events.findIndex(({eventId}) => eventId === updatedEvent.eventId);
         const updatedEvents = [...events];
@@ -83,21 +119,13 @@ class App extends React.Component {
     }
   }
 
-  setActiveDay(activeDay) {
-    if(days.indexOf(activeDay) === -1) return;
-
-    this.setState({ activeDay }, () => {
-      this.getEvents(this.state.activeDay);
-    });
-  }
-
   buildDays() {
-    const { activeDay } = this.state;
+    const { day } = this.props.match.params;
     return (
       <div className="row mb-5 d-flex justify-content-around">
         { 
           days.map(d => {
-            return <DayBtn key={d} activeDay={activeDay} day={d} onClick={() => this.setActiveDay(d)} />
+            return <DayBtn key={d} activeDay={day} day={d} onClick={() => this.props.history.push(`/${d}`)} />
           })
         }
       </div>
@@ -105,7 +133,8 @@ class App extends React.Component {
   }
 
   render() {
-    const { activeDay, events } = this.state;
+    const { day } = this.props.match.params;
+    const { events } = this.state;
 
     return (
       <div className="container-fluid">
@@ -117,15 +146,16 @@ class App extends React.Component {
             btnText="Add Event"
             Content={EventForm}
             contentProps={{ 
-              day: activeDay,
+              day: day,
               submit: this.addEvent,
               submitTxt: 'Add Event',
               title:"Add Event" 
             }}
           />
         </div>
+        <h2 className="text-center text-black-50">{day}'s Scheduled Events</h2>
         <EventsTable
-          day={activeDay}
+          day={day}
           deleteEvent={this.deleteEvent}
           events={events}
           update={this.updateEvent}

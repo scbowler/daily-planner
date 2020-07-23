@@ -4,9 +4,7 @@ module.exports = async (req, res) => {
   const { eventId } = req.params;
 
   try {
-    const data = await db.query('delete from events where eventId=$1', [eventId]);
-
-    console.log('Data:', data);
+    await db.query('delete from events where "eventId"=$1', [eventId]);
 
     res.send({
       deletedId: eventId
