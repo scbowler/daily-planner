@@ -8,6 +8,7 @@ export default class EventForm extends React.Component {
     this.state = {
       day: days.indexOf(props.day),
       description: props.description || '',
+      eventId: props.eventId || null,
       time: props.time || nearest15()
     }
 
@@ -20,8 +21,7 @@ export default class EventForm extends React.Component {
   async handleSubmit(e) {
     e.preventDefault();
 
-    await this.props.submit({ ...this.state });
-    this.props.closeModal();
+    await this.props.submit({ ...this.state }, this.props.closeModal);
   }
 
   handleChange({ target: { value, name }}) {
@@ -32,7 +32,7 @@ export default class EventForm extends React.Component {
 
   render() {
     const { day, description, time } = this.state;
-    const { closeModal, title } = this.props;
+    const { closeModal, submitTxt, title } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -62,7 +62,7 @@ export default class EventForm extends React.Component {
         <div className="row justify-content-center mb-2">
           <div className="col-8 text-right">
             <button className="btn btn-lg btn-danger mr-3" onClick={closeModal} type="button">Cancel</button>
-            <button className="btn btn-lg btn-success">Add Event</button>
+            <button className="btn btn-lg btn-success">{submitTxt}</button>
           </div>
         </div>
       </form>
