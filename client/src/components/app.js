@@ -17,6 +17,7 @@ class App extends React.Component {
     }
 
     this.addEvent = this.addEvent.bind(this);
+    this.deleteEvent = this.deleteEvent.bind(this);
     this.buildDays = this.buildDays.bind(this);
     this.updateEvent = this.updateEvent.bind(this);
   }
@@ -36,6 +37,10 @@ class App extends React.Component {
     } catch(error) {
       console.log('Add error:', error);
     }
+  }
+
+  async deleteEvent(eventId) {
+    console.log('Delete Event ID:', eventId);
   }
 
   async getEvents(day) {
@@ -119,7 +124,12 @@ class App extends React.Component {
             }}
           />
         </div>
-        <EventsTable day={activeDay} events={events} update={this.updateEvent} />
+        <EventsTable
+          day={activeDay}
+          deleteEvent={this.deleteEvent}
+          events={events}
+          update={this.updateEvent}
+        />
       </div>
     );
   }

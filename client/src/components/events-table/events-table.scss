@@ -8,6 +8,16 @@
         width: 75%;
       }
     }
+    &.event-confirm {
+      tr {
+        th:first-child {
+          width: 10%;
+        }
+        th:nth-child(2) {
+          width: 10%;
+        }
+      }
+    }
   }
   tbody {
     tr {
