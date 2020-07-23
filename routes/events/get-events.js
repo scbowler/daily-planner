@@ -1,5 +1,5 @@
 const db = require('../../database');
-const { days } = require('../../lib/date');
+const { days, padTime } = require('../../lib/date');
 
 module.exports = async (req, res) => {
   const { day } = req.params;
@@ -10,10 +10,11 @@ module.exports = async (req, res) => {
       error = 'Invalid day provided';
       throw new Error(error);
     }
-    const { rows } = await db.query('select * from events where day = $1', [day]);
+    const { rows } = await db.query('select * from events where day = $1 order by "time"', [day]);
 
     const events = rows.map(event => {
       event.dayText = days[event.day];
+      event.time = padTime(event.time);
       return event;
     });
 

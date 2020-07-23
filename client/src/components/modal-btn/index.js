@@ -23,13 +23,13 @@ export default class ModalBtn extends React.Component {
 
   render() {
     const { isOpen } = this.state;
-    const { btnClass, btnText } = this.props;
+    const { btnClass, btnText, Content, contentProps = {} } = this.props;
 
     if(isOpen) {
       return (
         <div className="modal-btn-container" onClick={this.close}>
           <div className="modal-btn-content" onClick={e => e.stopPropagation()}>
-            <h1 className="text-center">This is a modal!</h1>
+            <Content {...contentProps} closeModal={this.close}/>
           </div>
         </div>
       );

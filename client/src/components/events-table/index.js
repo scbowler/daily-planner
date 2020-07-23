@@ -44,17 +44,21 @@ function BuildRows({events = null, day, minRows = 8}) {
 
   blankCount = events.length >= minRows ? 0 : minRows - events.length;
 
-  return events.map(({ eventId, description, time }) => {
-    return (
-      <>
-        <tr key={eventId}>
-          <td>{time}</td>
-          <td>{description}</td>
-        </tr>
-        <BlankRows count={blankCount} />
-      </>
-    );
-  });
+  return (
+    <>
+      {
+        events.map(({ eventId, description, time }) => {
+          return (
+            <tr key={eventId}>
+              <td>{time}</td>
+              <td>{description}</td>
+            </tr>
+          );
+        })
+      }
+      <BlankRows count={blankCount} />
+    </>
+  )
 }
 
 function BlankRows({count = 0}) {

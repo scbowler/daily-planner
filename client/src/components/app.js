@@ -16,7 +16,23 @@ class App extends React.Component {
       events: []
     }
 
+    this.addEvent = this.addEvent.bind(this);
     this.buildDays = this.buildDays.bind(this);
+  }
+
+  async addEvent(event) {
+    try {
+      const { data: newEvent } = await axios.post('/api/events', event);
+
+      const dayEventAdded = days[newEvent.day];
+      const { activeDay } = this.state;
+
+      if(dayEventAdded === activeDay) {
+        this.getEvents(activeDay);
+      }
+    } catch(error) {
+      console.log('Add error:', error);
+    }
   }
 
   async getEvents(day) {
@@ -55,16 +71,23 @@ class App extends React.Component {
   }
 
   render() {
-    console.log('State:', this.state);
     const { activeDay, events } = this.state;
 
     return (
       <div className="container-fluid">
-        <EventForm />
         <h1 className="text-center my-5">Weekly Planner</h1>
         <this.buildDays />
         <div className="row py-5 justify-content-center">
-          <ModalBtn btnClass="btn btn-xlg btn-light-blue" btnText="Add Event" />
+          <ModalBtn 
+            btnClass="btn btn-xlg btn-light-blue"
+            btnText="Add Event"
+            Content={EventForm}
+            contentProps={{ 
+              day: activeDay,
+              submit: this.addEvent,
+              title:"Add Event" 
+            }}
+          />
         </div>
         <EventsTable day={activeDay} events={events} />
       </div>
