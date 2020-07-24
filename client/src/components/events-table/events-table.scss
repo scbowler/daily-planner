@@ -8,10 +8,20 @@
         width: 75%;
       }
     }
+    &.event-confirm {
+      tr {
+        th:first-child {
+          width: 10%;
+        }
+        th:nth-child(2) {
+          width: 10%;
+        }
+      }
+    }
   }
   tbody {
     tr {
-      height: 50px;
+      height: 63px;
 
       &:nth-child(even) {
         background-color: #e1f6ff;

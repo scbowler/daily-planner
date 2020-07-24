@@ -5,7 +5,16 @@
   cursor: pointer;
   font-size: 1.3rem;
   font-weight: bold;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
   transition-duration: 250ms;
+
+  .event-count {
+    // bottom: 0;
+    color: #80a0ad;
+    font-size: .8rem;
+    // right: 1px;
+  }
 
   &.active {
     border: 4px solid #507c8e;

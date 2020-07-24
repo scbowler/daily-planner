@@ -12,13 +12,32 @@ class App extends React.Component {
 
     this.state = {
       activeDay: null,
+      dayCount: new Array(7).fill(0),
       error: null,
       events: []
     }
 
     this.addEvent = this.addEvent.bind(this);
+    this.deleteEvent = this.deleteEvent.bind(this);
     this.buildDays = this.buildDays.bind(this);
     this.updateEvent = this.updateEvent.bind(this);
+  }
+
+  componentDidMount() {
+    const { day = null } = this.props.match.params;
+    this.getDayCount();
+
+    if(day) {
+      this.getEvents(day);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { day = null } = this.props.match.params;
+    
+    if(day && day !== prevProps.match.params.day) {
+      this.getEvents(day);
+    }
   }
 
   async addEvent(event, cb) {
@@ -28,14 +47,46 @@ class App extends React.Component {
       cb();
 
       const dayEventAdded = days[newEvent.day];
-      const { activeDay } = this.state;
+      const { day } = this.props.match.params;
 
-      if(dayEventAdded === activeDay) {
-        this.getEvents(activeDay);
+      if(dayEventAdded === day) {
+        this.getEvents(day);
       }
+
+      this.updateCount(newEvent.day);
     } catch(error) {
       console.log('Add error:', error);
     }
+  }
+
+  async deleteEvent(id, day, cb) {
+    try {
+      let { data: { deletedId } } = await axios.delete(`/api/events/${id}`);
+      deletedId = parseInt(deletedId);
+
+      cb();
+
+      const { events } = this.state;
+      const eventIndex = events.findIndex(({ eventId }) => eventId === deletedId);
+      
+      if (eventIndex > -1) {
+        const updatedEvents = [...events];
+
+        updatedEvents.splice(eventIndex, 1);
+        this.setState({
+          events: updatedEvents
+        });
+      }
+      this.updateCount(days.indexOf(day), '-');
+    } catch(error) {
+      console.log('Delete Error:', error);
+    }
+  }
+
+  async getDayCount() {
+    const { data: { dayCount }} = await axios.get('/api/events/count');
+
+    this.setState({ dayCount });
   }
 
   async getEvents(day) {
@@ -52,6 +103,21 @@ class App extends React.Component {
     }
   }
 
+  updateCount(dayIndex, op = '+') {
+    const { dayCount } = this.state;
+    const count = [...dayCount];
+
+    dayIndex = parseInt(dayIndex);
+    
+    if(op === '+') {
+      count[dayIndex]++;
+    } else {
+      count[dayIndex]--;
+    }
+    
+    this.setState({ dayCount: count });
+  }
+
   async updateEvent(event, cb) {
     try {
       const { eventId, ...newEvent } = event;
@@ -60,13 +126,17 @@ class App extends React.Component {
       cb();
 
       const dayEventAdded = days[updatedEvent.day];
-      const { activeDay, events } = this.state;
+      const { day } = this.props.match.params;
+      const { events } = this.state;
 
-      if (dayEventAdded === activeDay) {
-        this.getEvents(activeDay);
+      if (dayEventAdded === day) {
+        this.getEvents(day);
       } else {
         const eventIndex = events.findIndex(({eventId}) => eventId === updatedEvent.eventId);
         const updatedEvents = [...events];
+
+        this.updateCount(events[eventIndex].day, '-');
+        this.updateCount(updatedEvent.day);
 
         updatedEvents.splice(eventIndex, 1);
         this.setState({
@@ -78,21 +148,15 @@ class App extends React.Component {
     }
   }
 
-  setActiveDay(activeDay) {
-    if(days.indexOf(activeDay) === -1) return;
-
-    this.setState({ activeDay }, () => {
-      this.getEvents(this.state.activeDay);
-    });
-  }
-
   buildDays() {
-    const { activeDay } = this.state;
+    const { day } = this.props.match.params;
+    const { dayCount } = this.state;
+
     return (
-      <div className="row mb-5 d-flex justify-content-around">
+      <div className="row mb-3 d-flex justify-content-around">
         { 
-          days.map(d => {
-            return <DayBtn key={d} activeDay={activeDay} day={d} onClick={() => this.setActiveDay(d)} />
+          days.map((d, i) => {
+            return <DayBtn key={d} activeDay={day} day={d} eventCount={dayCount[i]} onClick={() => this.props.history.push(`/${d}`)} />
           })
         }
       </div>
@@ -100,11 +164,12 @@ class App extends React.Component {
   }
 
   render() {
-    const { activeDay, events } = this.state;
+    const { day } = this.props.match.params;
+    const { events } = this.state;
 
     return (
       <div className="container-fluid">
-        <h1 className="text-center my-5">Weekly Planner</h1>
+        <h1 className="text-center text-black-50 my-4">Weekly Planner</h1>
         <this.buildDays />
         <div className="row py-5 justify-content-center">
           <ModalBtn 
@@ -112,14 +177,20 @@ class App extends React.Component {
             btnText="Add Event"
             Content={EventForm}
             contentProps={{ 
-              day: activeDay,
+              day: day,
               submit: this.addEvent,
               submitTxt: 'Add Event',
               title:"Add Event" 
             }}
           />
         </div>
-        <EventsTable day={activeDay} events={events} update={this.updateEvent} />
+        <h2 className="text-center text-black-50">{day ? `${day}'s Scheduled Events` : 'Select Day Above'}</h2>
+        <EventsTable
+          day={day}
+          deleteEvent={this.deleteEvent}
+          events={events}
+          update={this.updateEvent}
+        />
       </div>
     );
   }

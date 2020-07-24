@@ -20,7 +20,7 @@ export default (props) => {
   );
 }
 
-function BuildRows({events = null, day, minRows = 8, update}) {
+function BuildRows({events = null, day, deleteEvent, minRows = 6, update}) {
   let blankCount = minRows - 1;
 
   if(!day) {
@@ -57,8 +57,8 @@ function BuildRows({events = null, day, minRows = 8, update}) {
               <td>{description}</td>
               <td>
                 <ModalBtn
-                  btnClass="btn btn-light-blue"
-                  btnText="Update Event"
+                  btnClass="btn btn-light-blue mr-3"
+                  btnText={< i className="fas fa-pen" />}
                   Content={EventForm}
                   contentProps={{
                     day,
@@ -70,6 +70,18 @@ function BuildRows({events = null, day, minRows = 8, update}) {
                     title: "Update Event"
                   }}
                 />
+                <ModalBtn
+                  btnClass="btn btn-light-red"
+                  btnText={< i className="fas fa-trash"/>}
+                  Content={DeleteContent}
+                  contentProps={{
+                    day,
+                    description,
+                    eventId,
+                    onDelete: deleteEvent,
+                    time
+                  }}
+                />
               </td>
             </tr>
           );
@@ -78,6 +90,34 @@ function BuildRows({events = null, day, minRows = 8, update}) {
       <BlankRows count={blankCount} />
     </>
   )
+}
+
+function DeleteContent({closeModal, day, description, eventId, time, onDelete}) {
+  return (
+    <>
+      <h1 className="mb-4">Are you sure you want to delete this event?</h1>
+      <table className="table events-table">
+        <thead className="thead-dark event-confirm">
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{day}</td>
+            <td>{time}</td>
+            <td>{description}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="my-4 text-center">
+        <button className="btn btn-danger mr-3" onClick={closeModal}>Cancel</button>
+        <button className="btn btn-success" onClick={() => onDelete(eventId, day, closeModal)}>Delete</button>
+      </div>
+    </>
+  );
 }
 
 function BlankRows({count = 0}) {
