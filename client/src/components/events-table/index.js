@@ -114,7 +114,7 @@ function DeleteContent({closeModal, day, description, eventId, time, onDelete}) 
       </table>
       <div className="my-4 text-center">
         <button className="btn btn-danger mr-3" onClick={closeModal}>Cancel</button>
-        <button className="btn btn-success" onClick={() => onDelete(eventId, closeModal)}>Delete</button>
+        <button className="btn btn-success" onClick={() => onDelete(eventId, day, closeModal)}>Delete</button>
       </div>
     </>
   );
